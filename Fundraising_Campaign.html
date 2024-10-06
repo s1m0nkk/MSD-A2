@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundraiser Details</title>
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .fundraiser-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .fundraiser-description {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .fundraiser-goal {
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .donate-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .donate-btn:hover {
+            background-color: #218838;
+        }
+
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dialog-box {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .close-dialog {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .close-dialog:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Welcome to Our Fundraising Platform</h1>
+    </header>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="Search_Fundraiser.html">Search Fundraiser</a>
+    </nav>
+    <div class="container">
+        <h1 class="fundraiser-title" id="fundraiserTitle">Fundraiser Title</h1>
+        <p>
+            <img src="images/1.jpg" alt="" style="width: 80%;max-height: 280px;min-height: 200px;">
+        </p>
+        <p class="fundraiser-description" id="fundraiserDescription"></p>
+        <button class="donate-btn" id="donateBtn">Donate</button>
+    </div>
+
+    <div class="dialog-overlay" id="dialogOverlay">
+        <div class="dialog-box">
+            <p>This feature is under construction.</p>
+            <button class="close-dialog" id="closeDialogBtn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (e) => {
+            let id = e.target.location.search.split('?id=')[1]
+            fetch(`http://localhost:8085/api/getfundraiserList2/${id}`).then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            }).then(res => {
+                let { code, data } = res
+                if (code === 200) {
+                    const fundraiser = data[0]
+                    console.log(fundraiser)
+                    // Display the fundraiser data on the page
+                    document.getElementById('fundraiserTitle').textContent = fundraiser.CAPTION;
+                    document.getElementById('fundraiserDescription').textContent = `This is the detailed description of the
+            fundraiser...`;
+
+                    // Donate button click event
+                    document.getElementById('donateBtn').addEventListener('click', function () {
+                        document.getElementById('dialogOverlay').style.display = 'flex';
+                    });
+
+                    // Close dialog event
+                    document.getElementById('closeDialogBtn').addEventListener('click', function () {
+                        document.getElementById('dialogOverlay').style.display = 'none';
+                    });
+                }
+            })
+        })
+
+    </script>
+
+</body>
+
+</html>
