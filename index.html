@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundraiser Platform</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+    <header>
+        <h1>Welcome to Our Fundraising Platform</h1>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="Search_Fundraiser.html">Search Fundraiser</a>
+    </nav>
+
+    <div class="container">
+
+        <div class="fundraiser-list">
+            <h2>Ongoing fundraising activities</h2>
+            <div id="fundraiser-container">
+                <p>Loading active fundraisers...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('http://localhost:8085/api/getfundraiserList').then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            }).then(res => {
+                let { code, data } = res
+                if (code === 200) {
+                    const fundraisers = data
+                    const fundraiserContainer = document.getElementById("fundraiser-container");
+                    fundraiserContainer.innerHTML = "";
+
+                    if (fundraisers.length > 0) {
+                        fundraisers.forEach(fundraiser => {
+                            const fundraiserElement = document.createElement("div");
+                            fundraiserElement.className = "fundraiser";
+                            fundraiserElement.innerHTML = `
+                        <img src="images/1.jpg" style="min-width:260px;min-height:150px;" alt="Fundraiser Image">
+                        <div class="fundraiser-info">
+                            <h3>${fundraiser.CAPTION}</h3>
+                            <p><strong>ID:</strong> ${fundraiser.FUNDRAISER_ID}</p>
+                            <p><strong>Target funding:</strong> £${fundraiser.TARGET_FUNDING}</p>
+                            <p><strong>Current Funding:</strong> £${fundraiser.CURRENT_FUNDING}</p>
+                            <p><strong>City:</strong> ${fundraiser.CITY}</p>
+                            <p><strong>Active:</strong> ${fundraiser.ACTIVE == 1 ? 'In Progress' : ''}</p>
+                            <p><strong>Category:</strong> ${fundraiser.NAME}</p>
+                            <a href="/Fundraising_Campaign.html?id=${fundraiser.FUNDRAISER_ID}">View Details</a>
+                        </div>
+                    `;
+                            fundraiserContainer.appendChild(fundraiserElement);
+                        });
+                    } else {
+                        fundraiserContainer.innerHTML = "<p>No active fundraisers at the moment.</p>";
+                    }
+                }
+            })
+
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundraising Search</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/search.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Welcome to Our Fundraising Platform</h1>
+    </header>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="Search_Fundraiser.html">Search Fundraiser</a>
+    </nav>
+    <div class="container">
+        <div class="box">
+            <h1>Search for Active Fundraising Campaigns</h1>
+            <form id="searchForm">
+                <div class="form-group">
+                    <label for="organizer">Organizer:</label>
+                    <input type="text" id="organizer" name="organizer" placeholder="Organizer">
+                </div>
+                <div class="form-group">
+                    <label for="city">City:</label>
+                    <input type="text" id="city" name="city" placeholder="City">
+                </div>
+                <div class="form-group">
+                    <label for="category">Category:</label>
+                    <select id="category" name="category">
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="button" id="searchBtn">Search</button>
+                    <button type="button" id="clearBtn" onclick="clearCheckboxes()">Clear</button>
+                </div>
+                <div id="errorMsg" class="error"></div>
+            </form>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', (e => {
+            fetch('http://localhost:8085/api/getCategoryList').then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    let mix = ''
+                    data.data.forEach(item => {
+                        let str = `<option value=${item.NAME} label="${item.NAME}">${item.NAME}</option>`
+                        mix += str
+                    })
+
+                    document.querySelector('#category').innerHTML = mix
+
+                })
+            document.getElementById('searchBtn').addEventListener('click', function () {
+                const organizer = document.getElementById('organizer').value;
+                const city = document.getElementById('city').value;
+                const category = document.getElementById('category').value;
+                const errorMsg = document.getElementById('errorMsg');
+                const resultDiv = document.getElementById('result');
+
+                errorMsg.innerHTML = '';
+                resultDiv.innerHTML = '';
+
+                if (!organizer && !city && !category) {
+                    errorMsg.innerHTML = 'Please select at least one condition!';
+                    return;
+                }
+
+
+                fetch(`http://localhost:8085/api/getfundraiserList1?organizer=${organizer}&city=${city}&category=${category}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.data.length > 0) {
+                            data.data.forEach(item => {
+                                const itemDiv = document.createElement('ul');
+                                itemDiv.classList.add('result-item');
+                                itemDiv.innerHTML = `<li><a href="Fundraising_Campaign.html?id=${item.FUNDRAISER_ID}"><input type="checkbox" checked style="width:20px;"/>${item.CAPTION}</a></li>`;
+                                resultDiv.appendChild(itemDiv);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching campaigns:', error);
+                        resultDiv.innerHTML = '<div class="error">No data yet!</div>';
+                    });
+            });
+
+        }))
+
+
+        function clearCheckboxes() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(item => {
+                item.checked = false
+            })
+        }
+
+    </script>
+</body>
+
+</html>
